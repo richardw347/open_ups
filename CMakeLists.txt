@@ -12,10 +12,16 @@ find_package(rclcpp_components REQUIRED)
 find_package(rclcpp_lifecycle REQUIRED)
 
 
+set(dependencies
+rclcpp
+rclcpp_components
+rclcpp_lifecycle
+)
+
 include_directories(
   include
-  ups/lib
-  ups/utils
+  src/lib
+  src/utils
 )
 
 set(UPS_LIB
@@ -26,21 +32,21 @@ set(UPS_LIB
   src/utils/HArray.cpp
 )
 
-add_library(ups_lib SHARED ${UPS_LIB})
-target_link_libraries(ups_lib
-  usb
-)
+# add_library(ups_lib SHARED ${UPS_LIB})
+# target_link_libraries(ups_lib
+#   usb
+# )
 
-add_executable(open_ups_node src/open_ups_node.cpp)
+add_executable(open_ups_node src/open_ups_node.cpp ${UPS_LIB})
 target_include_directories(open_ups_node PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>)
-target_compile_features(open_ups_node PUBLIC c_std_99 cxx_std_17)  # Require C99 and C++17
-ament_target_dependencies(
-  open_ups_node
-  "rclcpp"
-  "rclcpp_components"
-  "rclcpp_lifecycle"
+target_compile_features(open_ups_node PUBLIC c_std_99 cxx_std_17)
+ament_target_dependencies(open_ups_node
+  ${dependencies}
+)
+target_link_libraries(open_ups_node
+  usb
 )
 
 install(TARGETS open_ups_node
